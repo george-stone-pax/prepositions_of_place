@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magic Room: Prepositions of Place</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;800&display=swap');
+
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #00CEC9;
+            --accent: #FD79A8;
+            --dark: #2D3436;
+            --light: #DFE6E9;
+            --success: #00b894;
+            --danger: #d63031;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+            font-family: 'Nunito', sans-serif;
+            color: var(--dark);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Fullscreen modifications */
+        :fullscreen #game-container {
+            max-width: 100vw;
+            max-height: 100vh;
+            border-radius: 0;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1024px;
+            max-height: 768px;
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 12px;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 10px;
+            padding: 8px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .fullscreen-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* UI Layers */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 20;
+            transition: opacity 0.5s;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none !important;
+            z-index: -1 !important;
+            display: none !important;
+        }
+
+        h1 {
+            font-family: 'Comic Neue', cursive;
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            font-family: 'Comic Neue', cursive;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            position: relative;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background: #5649c0;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            box-shadow: 0 5px 15px rgba(0, 206, 201, 0.4);
+        }
+
+        .btn-locked {
+            background: #b2bec3;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .lock-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        /* Theory Screen */
+        #theory-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .preposition-card {
+            display: inline-block;
+            width: 45%;
+            margin: 10px 2%;
+            padding: 15px;
+            background: #f1f2f6;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        
+        .preposition-card:hover {
+            border-color: var(--primary);
+        }
+
+        .prep-word {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .prep-img {
+            font-size: 3rem;
+            display: block;
+            margin: 10px 0;
+        }
+        
+        .prep-desc {
+            font-size: 1rem;
+            color: #636e72;
+        }
+
+        /* Game HUD */
+        #game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(5px);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            pointer-events: auto;
+            height: 70px;
+            align-items: center;
+        }
+
+        #task-display {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 40px;
+            border-radius: 20px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--dark);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            width: 80%;
+            text-align: center;
+            border: 3px solid var(--primary);
+            pointer-events: auto;
+            z-index: 20;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .transparent-task {
+            opacity: 0.1 !important;
+            pointer-events: none !important;
+        }
+
+        .highlight {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        /* Status Bar (Realtime feedback) */
+        #status-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-family: 'Comic Neue', cursive;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            opacity: 0;
+            white-space: nowrap;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 2px solid var(--secondary);
+        }
+        
+        #status-bar.visible {
+            opacity: 1;
+        }
+
+        /* Level Notification */
+        #level-notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px 60px;
+            border-radius: 20px;
+            font-size: 3rem;
+            color: var(--primary);
+            font-family: 'Comic Neue', cursive;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 50;
+            display: none;
+            text-align: center;
+            border: 5px solid var(--secondary);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 15px;
+            border-radius: 20px;
+            pointer-events: auto;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            cursor: pointer;
+        }
+
+        /* Result Screen */
+        .grade-badge {
+            font-size: 5rem;
+            font-weight: bold;
+            color: white;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .grade-5 { background: #00b894; }
+        .grade-4 { background: #0984e3; }
+        .grade-3 { background: #fdcb6e; }
+        .grade-2 { background: #d63031; }
+
+        .modal-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 100;
+            display: none;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+
+        /* Canvas */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: none; 
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+<script>
+    // --- PROTECTION SYSTEM WITH LOCALHOST EXCEPTION ---
+    (function() {
+        const allowedDomains = ['stepik.org', 'welcome.stepik.org', 'localhost', '127.0.0.1'];
+        const referrer = document.referrer;
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+
+        // Разрешаем доступ, если:
+        // 1. Реферер содержит разрешенный домен
+        // 2. Протокол - file: (локальный запуск)
+        // 3. Хостнейм в списке разрешенных или пустой (некоторые песочницы/редакторы)
+        const isInsideStepik = allowedDomains.some(domain => referrer.includes(domain));
+        const isLocal = protocol === 'file:' || allowedDomains.includes(hostname) || hostname === '';
+
+        if (!isInsideStepik && !isLocal) {
+            document.body.innerHTML = `
+                <div style="background:#000; color:#fff; height:100vh; display:flex;
+                            flex-direction:column; align-items:center; justify-content:center;
+                            font-family:sans-serif; text-align:center; padding:20px;">
+                    <h1>⛔️ Доступ ограничен</h1>
+                    <p>Эта игра — часть платного курса. <br>
+                    Пожалуйста, вернитесь к обучению на Stepik.</p>
+                    <a href="https://stepik.org" style="color:#4ade80; font-size: 1.2rem; margin-top: 20px;">Перейти к курсу</a>
+                </div>`;
+            window.stop();
+        }
+    })();
+
+    // --- PREVENT SCROLL ON ARROWS ---
+    window.addEventListener('keydown', function(e) {
+        if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].indexOf(e.code) > -1) {
+            e.preventDefault(); // Эй, браузер, не скролль страницу!
+        }
+    }, false);
+
+    // --- FULLSCREEN LOGIC ---
+    function toggleFullScreen() {
+        const doc = window.document;
+        const docEl = doc.documentElement;
+
+        const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+        if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+            requestFullScreen.call(docEl).catch(err => {
+                console.log(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        } else {
+            cancelFullScreen.call(doc);
+        }
+    }
+</script>
+
+<div id="game-container">
+
+    <button class="fullscreen-btn" onclick="toggleFullScreen()" title="Развернуть на весь экран">⛶</button>
+
+    <!-- MENU SCREEN -->
+    <div id="menu-screen" class="screen">
+        <h1>Magic Room 👻</h1>
+        <h2>Prepositions of Place</h2>
+        <p style="font-size: 1.2rem; color: #636e72;">Clean up the room!</p>
+        
+        <button class="btn btn-secondary" onclick="showTheory()">📖 Теория (Theory)</button>
+        <button id="btn-start" class="btn btn-locked" onclick="showHowToPlay()">
+            🎮 Начать игру 
+            <span class="lock-icon">🔒</span>
+        </button>
+
+        <div class="volume-control" style="margin-top: 30px;">
+            <span>🔈</span>
+            <input type="range" id="menu-volume" min="0" max="1" step="0.1" value="0.5">
+            <span>🔊</span>
+        </div>
+    </div>
+
+    <!-- HOW TO PLAY SCREEN -->
+    <div id="how-to-play-screen" class="screen hidden" style="background: rgba(255,255,255,0.98);">
+        <h2 style="font-size: 2.5rem; color: var(--primary);">Как играть? 🎮</h2>
+        <div style="text-align: left; max-width: 600px; font-size: 1.3rem; margin-bottom: 30px;">
+            <p>1. Внимательно читай задание вверху экрана.</p>
+            <p>2. Хватай нужный предмет (мышкой или пальцем) и <b>перетаскивай</b> в правильное место!</p>
+            <p style="color: var(--danger); font-weight: bold;">3. Внимание: Если ты ошибешься с первой попытки, балл за этот предмет начислен не будет!</p>
+            <p>4. Чтобы перейти дальше, предмет всё равно нужно будет поставить на верное место.</p>
+        </div>
+        <button class="btn" onclick="startActualGame()">Понятно, поехали!</button>
+    </div>
+
+    <!-- THEORY SCREEN -->
+    <div id="theory-screen" class="screen hidden">
+        <h2>Изучи правила (Study the rules)</h2>
+        <div id="theory-content">
+            <p>Чтобы разблокировать игру, внимательно изучи предлоги места!</p>
+            
+            <div class="preposition-card">
+                <span class="prep-img">📦🍎</span>
+                <span class="prep-word">ON</span>
+                <span class="prep-desc">На (поверхности)</span>
+            </div>
+
+            <div class="preposition-card">
+                <span class="prep-img">📥🍎</span>
+                <span class="prep-word">IN</span>
+                <span class="prep-desc">В (внутри)</span>
+                <small>Предмет становится <b>полупрозрачным</b>!</small>
+            </div>
+
+            <div class="preposition-card">
+                <span class="prep-img">📦⬇️🍎</span>
+                <span class="prep-word">UNDER</span>
+                <span class="prep-desc">Под</span>
+            </div>
+
+            <div class="preposition-card">
+                <span class="prep-img">🍎📦</span>
+                <span class="prep-word">NEXT TO</span>
+                <span class="prep-desc">Рядом с</span>
+            </div>
+            
+             <div class="preposition-card">
+                <span class="prep-img">📦👀</span>
+                <span class="prep-word">BEHIND</span>
+                <span class="prep-desc">За (позади)</span>
+                <small>Предмет <b>прячется</b> за мебелью!</small>
+            </div>
+
+            <div class="preposition-card">
+                <span class="prep-img">🍎📦👀</span>
+                <span class="prep-word">IN FRONT OF</span>
+                <span class="prep-desc">Перед</span>
+                <small>Предмет находится <b>перед</b> мебелью.</small>
+            </div>
+        </div>
+        <button class="btn" style="margin-top: 20px;" onclick="finishTheory()">Я все выучил! (I'm ready)</button>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <canvas id="game-canvas"></canvas>
+    
+    <!-- Gameplay UI -->
+    <div id="game-ui" class="hidden">
+        <div id="top-bar">
+            <div style="font-weight: bold; font-size: 1.2rem; color: var(--primary);">Score: <span id="score-display">0</span></div>
+            <div class="volume-control">
+                <span>🎵</span>
+                <input type="range" id="game-volume" min="0" max="1" step="0.1" value="0.5">
+            </div>
+            <div style="font-weight: bold; font-size: 1.2rem; color: var(--dark);">
+                Level: <span id="current-level-display">1</span>/3 | Task: <span id="level-display">1/7</span>
+            </div>
+        </div>
+        <div id="task-display">Loading...</div>
+        <div id="status-bar">Waiting...</div>
+        
+        <div id="level-notification">Level 2</div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen hidden">
+        <h1>Great Job!</h1>
+        <p>Твой результат:</p>
+        <div id="final-grade-badge" class="grade-badge">5</div>
+        <h2 id="final-score-text">Score: 100</h2>
+        
+        <!-- Секретное слово -->
+        <div id="secret-word-container" class="hidden" style="margin: 20px 0; min-height: 80px;">
+            <button id="btn-reveal-secret" class="btn" style="background: var(--accent);" onclick="revealSecretWord()">Показать СЕКРЕТНОЕ СЛОВО 🎁</button>
+            <div id="secret-word-display" class="hidden" style="font-size: 2.5rem; color: var(--accent); font-weight: bold; animation: pulse 1.5s infinite;">Big - Большой</div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <button class="btn btn-secondary" onclick="toggleCriteria()">📊 Критерии оценки</button>
+            <button class="btn" onclick="location.reload()">🔄 Играть снова</button>
+        </div>
+    </div>
+
+    <!-- OVERLAYS AND MODALS -->
+    <div id="overlay" class="overlay" onclick="closeModals()"></div>
+    
+    <div id="criteria-modal" class="modal-box">
+        <h3 style="color: var(--primary); margin-top: 0;">Критерии оценки</h3>
+        <ul style="list-style: none; padding: 0; text-align: left;">
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee;"><b>«5»</b>: 85% – 100% от общего количества баллов</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee;"><b>«4»</b>: 70% – 84% от общего количества баллов</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee;"><b>«3»</b>: 50% – 69% от общего количества баллов</li>
+            <li style="padding: 8px 0;"><b>«2»</b>: менее 50% заданий от количества баллов</li>
+        </ul>
+        <button class="btn" style="width:100%; font-size: 1.2rem; padding: 10px;" onclick="closeModals()">Закрыть</button>
+    </div>
+
+    <div id="error-modal" class="modal-box" style="border: 4px solid var(--danger);">
+        <h2 style="color: var(--danger); margin-top: 0;">Упс! Ошибка 🙈</h2>
+        <div id="error-message" style="font-size: 1.2rem; margin-bottom: 20px; line-height: 1.5;"></div>
+        <button class="btn" style="background: var(--danger); width: 100%; font-size: 1.2rem; padding: 10px;" onclick="closeModals()">Понятно, исправлю!</button>
+    </div>
+
+</div>
+
+<script>
+    // --- AUDIO SYSTEM ---
+    const audioAssets = {
+        correct: new Audio('https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3'),
+        wrong: new Audio('https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3'),
+        bgMusic: null
+    };
+
+    const bgMusicLinks = [
+        'https://george-stone-pax.github.io/my-game-assets/Aylex - Back To Life (freetouse.com).mp3',
+        'https://george-stone-pax.github.io/my-game-assets/Aylex - Adrenaline Drive (freetouse.com).mp3',
+        'https://george-stone-pax.github.io/my-game-assets/Aylex - Off Road (freetouse.com).mp3',
+        'https://george-stone-pax.github.io/gamesnew/My_music1.mp3',
+        'https://george-stone-pax.github.io/gamesnew/My_music2.mp3',
+        'https://george-stone-pax.github.io/gamesnew/My_music3.mp3',
+        'https://george-stone-pax.github.io/gamesnew/My_music4.mp3',
+        'https://george-stone-pax.github.io/gamesnew/My_music5.mp3',
+        'https://george-stone-pax.github.io/gamesnew/My_music6.mp3',
+        'https://george-stone-pax.github.io/gamesnew/My_music7.mp3'
+    ];
+
+    let currentMusic = null;
+    let globalVolume = 0.5;
+
+    function initAudio() {
+        if (!currentMusic) {
+            const randomLink = bgMusicLinks[Math.floor(Math.random() * bgMusicLinks.length)];
+            currentMusic = new Audio(randomLink);
+            currentMusic.loop = true;
+        }
+        updateVolume(globalVolume);
+    }
+
+    function updateVolume(val) {
+        globalVolume = val;
+        if(currentMusic) currentMusic.volume = globalVolume;
+        audioAssets.correct.volume = globalVolume;
+        audioAssets.wrong.volume = globalVolume;
+        
+        // Sync sliders
+        document.getElementById('menu-volume').value = val;
+        document.getElementById('game-volume').value = val;
+    }
+
+    function playSound(type) {
+        if (type === 'correct') {
+            audioAssets.correct.currentTime = 0;
+            audioAssets.correct.play().catch(e => console.log('Audio blocked', e));
+        } else if (type === 'wrong') {
+            audioAssets.wrong.currentTime = 0;
+            audioAssets.wrong.play().catch(e => console.log('Audio blocked', e));
+        }
+    }
+
+    // --- GAME DATA ---
+    const items = [
+        { id: 'cat', icon: '🐱', name: 'cat', ruName: 'Кошка', color: '#ff9ff3' },
+        { id: 'ball', icon: '⚽', name: 'ball', ruName: 'Мяч', color: '#54a0ff' },
+        { id: 'book', icon: '📕', name: 'book', ruName: 'Книга', color: '#ff6b6b' },
+        { id: 'robot', icon: '🤖', name: 'robot', ruName: 'Робот', color: '#74b9ff' },
+        { id: 'gift', icon: '🎁', name: 'gift', ruName: 'Подарок', color: '#48dbfb' },
+        { id: 'plant', icon: '🪴', name: 'plant', ruName: 'Растение', color: '#2ecc71' },
+        { id: 'phone', icon: '📱', name: 'phone', ruName: 'Телефон', color: '#a29bfe' },
+        { id: 'bear', icon: '🧸', name: 'bear', ruName: 'Мишка', color: '#e17055' },
+        { id: 'hat', icon: '🎩', name: 'hat', ruName: 'Шляпа', color: '#2d3436' },
+        { id: 'dog', icon: '🐶', name: 'dog', ruName: 'Собака', color: '#a29bfe' },
+        { id: 'clock', icon: '⏰', name: 'clock', ruName: 'Часы', color: '#fab1a0' },
+        { id: 'apple', icon: '🍎', name: 'apple', ruName: 'Яблоко', color: '#ff7675' },
+        { id: 'bag', icon: '🎒', name: 'bag', ruName: 'Сумка', color: '#fdcb6e' },
+        { id: 'pencil', icon: '✏️', name: 'pencil', ruName: 'Карандаш', color: '#fd79a8' }
+    ];
+
+    /* --- FURNITURE DEFINITIONS --- */
+    let furnitureDef = [
+      { "id": "table", "xPct": 0.158, "yPct": 0.729, "wPct": 0.25, "hPct": 0.2 },
+      { "id": "fridge", "xPct": 0.072, "yPct": 0.274, "wPct": 0.12, "hPct": 0.35 },
+      { "id": "wardrobe", "xPct": 0.92, "yPct": 0.45, "wPct": 0.12, "hPct": 0.45 },
+      { "id": "box", "xPct": 0.63, "yPct": 0.685, "wPct": 0.15, "hPct": 0.12 },
+      { "id": "tv", "xPct": 0.438, "yPct": 0.45, "wPct": 0.15, "hPct": 0.15 },
+      { "id": "shelf", "xPct": 0.753, "yPct": 0.241, "wPct": 0.2, "hPct": 0.05 }
+    ];
+
+    /* --- TARGET DEFINITIONS --- */
+    let allPossibleTargets = [
+      { "id": "table_on", "name": "on the table", "ruLoc": "НА столе", "label": "ON", "xPct": 0.157, "yPct": 0.684, "wPct": 0.25, "hPct": 0.08 },
+      { "id": "table_under", "name": "under the table", "ruLoc": "ПОД столом", "label": "UNDER", "xPct": 0.159, "yPct": 0.83, "wPct": 0.2, "hPct": 0.15 },
+      { "id": "table_next", "name": "next to the table", "ruLoc": "РЯДОМ со столом", "label": "NEXT TO", "xPct": 0.348, "yPct": 0.788, "wPct": 0.1, "hPct": 0.2 },
+      { "id": "fridge_in", "name": "in the fridge", "ruLoc": "В холодильнике", "label": "IN", "xPct": 0.074, "yPct": 0.423, "wPct": 0.12, "hPct": 0.2 },
+      { "id": "fridge_on", "name": "on the fridge", "ruLoc": "НА холодильнике", "label": "ON", "xPct": 0.075, "yPct": 0.228, "wPct": 0.12, "hPct": 0.08 },
+      { "id": "fridge_next", "name": "next to the fridge", "ruLoc": "РЯДОМ с холодильником", "label": "NEXT TO", "xPct": 0.191, "yPct": 0.397, "wPct": 0.08, "hPct": 0.2 },
+      { "id": "wardrobe_in", "name": "in the wardrobe", "ruLoc": "В шкафу", "label": "IN", "xPct": 0.92, "yPct": 0.668, "wPct": 0.12, "hPct": 0.3 },
+      { "id": "wardrobe_next", "name": "next to the wardrobe", "ruLoc": "РЯДОМ со шкафом", "label": "NEXT TO", "xPct": 0.799, "yPct": 0.691, "wPct": 0.08, "hPct": 0.2 },
+      { "id": "box_in", "name": "in the box", "ruLoc": "В коробке", "label": "IN", "xPct": 0.629, "yPct": 0.696, "wPct": 0.15, "hPct": 0.12 },
+      { "id": "box_behind", "name": "behind the box", "ruLoc": "ЗА коробкой", "label": "BEHIND", "xPct": 0.627, "yPct": 0.625, "wPct": 0.12, "hPct": 0.08 },
+      { "id": "box_next", "name": "next to the box", "ruLoc": "РЯДОМ С коробкой", "label": "NEXT TO", "xPct": 0.498, "yPct": 0.72, "wPct": 0.08, "hPct": 0.15 },
+      { "id": "box_front", "name": "in front of the box", "ruLoc": "ПЕРЕД коробкой", "label": "IN FRONT OF", "xPct": 0.632, "yPct": 0.832, "wPct": 0.15, "hPct": 0.08 },
+      { "id": "tv_next", "name": "next to the TV", "ruLoc": "РЯДОМ С телевизором", "label": "NEXT TO", "xPct": 0.562, "yPct": 0.461, "wPct": 0.08, "hPct": 0.15 },
+      { "id": "tv_on", "name": "on the TV", "ruLoc": "НА телевизоре", "label": "ON", "xPct": 0.438, "yPct": 0.334, "wPct": 0.15, "hPct": 0.08 },
+      { "id": "shelf_on", "name": "on the shelf", "ruLoc": "НА полке", "label": "ON", "xPct": 0.754, "yPct": 0.212, "wPct": 0.2, "hPct": 0.06 },
+      { "id": "shelf_under", "name": "under the shelf", "ruLoc": "ПОД полкой", "label": "UNDER", "xPct": 0.748, "yPct": 0.334, "wPct": 0.15, "hPct": 0.15 }
+    ];
+
+    let gameState = {
+        mode: 'menu', 
+        level: 1,
+        maxLevels: 3,
+        tasksPerLevel: 7,
+        taskIndex: 0,
+        score: 0,
+        totalPossibleScore: 21, // 3 levels * 7 tasks
+        currentRoundTasks: [],
+        dragItem: null,
+        particles: [],
+        gameObjects: [], 
+        gameTargets: [],
+        hoveredZone: null,
+        isModalOpen: false
+    };
+
+    let mouse = { x: 0, y: 0, down: false };
+
+    // --- GAME ENGINE ---
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resize() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        calculateTargets();
+    }
+    window.addEventListener('resize', resize);
+
+    function calculateTargets() {
+        gameState.gameTargets = allPossibleTargets.map(t => ({
+            ...t,
+            x: t.xPct * canvas.width,
+            y: t.yPct * canvas.height,
+            w: t.wPct * canvas.width,
+            h: t.hPct * canvas.height
+        }));
+    }
+
+    // --- LOGIC ---
+    let theoryRead = false;
+
+    function showTheory() {
+        document.getElementById('menu-screen').classList.add('hidden');
+        document.getElementById('theory-screen').classList.remove('hidden');
+    }
+
+    function finishTheory() {
+        theoryRead = true;
+        const btn = document.getElementById('btn-start');
+        btn.classList.remove('btn-locked');
+        btn.innerHTML = "🎮 Начать игру";
+        
+        document.getElementById('theory-screen').classList.add('hidden');
+        document.getElementById('menu-screen').classList.remove('hidden');
+    }
+
+    function showHowToPlay() {
+        if (!theoryRead) return;
+        document.getElementById('menu-screen').classList.add('hidden');
+        document.getElementById('how-to-play-screen').classList.remove('hidden');
+    }
+
+    function startActualGame() {
+        initAudio();
+        currentMusic.play().catch(e => console.log("Music require interaction"));
+
+        gameState.mode = 'game';
+        gameState.level = 1;
+        gameState.score = 0;
+        document.getElementById('how-to-play-screen').classList.add('hidden');
+        document.getElementById('game-ui').classList.remove('hidden');
+        
+        resize();
+        startLevel();
+        gameLoop();
+    }
+
+    function startLevel() {
+        // Show Level Notification
+        const notif = document.getElementById('level-notification');
+        notif.innerText = `Level ${gameState.level}`;
+        notif.style.display = 'block';
+        setTimeout(() => { notif.style.display = 'none'; }, 2000);
+
+        gameState.taskIndex = 0;
+        document.getElementById('current-level-display').innerText = gameState.level;
+
+        // Generate Tasks for this level
+        const shuffledItems = [...items].sort(() => 0.5 - Math.random());
+        const shuffledTargets = [...allPossibleTargets].sort(() => 0.5 - Math.random());
+        
+        gameState.currentRoundTasks = [];
+        gameState.gameObjects = [];
+
+        // Generate tasks
+        for (let i = 0; i < gameState.tasksPerLevel; i++) {
+            const item = shuffledItems[i % shuffledItems.length];
+            const target = shuffledTargets[i % shuffledTargets.length];
+            
+            const preposition = target.label; 
+            const furniture = target.name.split(' ').slice(2).join(' '); 
+            const text = `Put the <span class='highlight'>${item.name}</span> <b>${preposition}</b> ${furniture}.`;
+
+            gameState.currentRoundTasks.push({
+                itemId: item.id,
+                targetId: target.id,
+                text: text,
+                failed: false // Track if the player failed this task on the first try
+            });
+
+            gameState.gameObjects.push({
+                ...item,
+                taskId: target.id, 
+                x: (canvas.width / 2) + (Math.random() - 0.5) * 200,
+                y: (canvas.height / 2) + (Math.random() - 0.5) * 150,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                radius: 35,
+                held: false,
+                locked: false,
+                visualState: 'normal'
+            });
+        }
+        
+        loadNextTask();
+    }
+
+    function loadNextTask() {
+        if (gameState.taskIndex >= gameState.tasksPerLevel) {
+            // Level Complete
+            if (gameState.level < gameState.maxLevels) {
+                gameState.level++;
+                setTimeout(startLevel, 1000);
+            } else {
+                endGame();
+            }
+            return;
+        }
+
+        const task = gameState.currentRoundTasks[gameState.taskIndex];
+        document.getElementById('task-display').innerHTML = task.text;
+        document.getElementById('level-display').innerText = `${gameState.taskIndex + 1}/${gameState.tasksPerLevel}`;
+        document.getElementById('score-display').innerText = gameState.score;
+        updateStatus("");
+    }
+
+    function endGame() {
+        cancelAnimationFrame(animationId);
+        gameState.mode = 'menu';
+        document.getElementById('game-ui').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        
+        const percentage = Math.round((gameState.score / gameState.totalPossibleScore) * 100);
+        document.getElementById('final-score-text').innerText = `Score: ${gameState.score} из ${gameState.totalPossibleScore} (${percentage}%)`;
+        
+        const badge = document.getElementById('final-grade-badge');
+        let grade = 2;
+        badge.className = 'grade-badge grade-2';
+
+        if (percentage >= 85) { grade = 5; badge.className = 'grade-badge grade-5'; }
+        else if (percentage >= 70) { grade = 4; badge.className = 'grade-badge grade-4'; }
+        else if (percentage >= 50) { grade = 3; badge.className = 'grade-badge grade-3'; }
+        
+        badge.innerText = grade;
+        
+        // Показываем кнопку для секретного слова, если оценка 5
+        const secretContainer = document.getElementById('secret-word-container');
+        if (grade === 5) {
+            secretContainer.classList.remove('hidden');
+            document.getElementById('btn-reveal-secret').classList.remove('hidden');
+            document.getElementById('secret-word-display').classList.add('hidden');
+        } else {
+            secretContainer.classList.add('hidden');
+        }
+
+        if (currentMusic) currentMusic.pause();
+    }
+
+    function revealSecretWord() {
+        document.getElementById('btn-reveal-secret').classList.add('hidden');
+        document.getElementById('secret-word-display').classList.remove('hidden');
+    }
+
+    function toggleCriteria() {
+        const modal = document.getElementById('criteria-modal');
+        const overlay = document.getElementById('overlay');
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+        gameState.isModalOpen = true;
+    }
+
+    function showErrorModal(messageHTML) {
+        document.getElementById('error-message').innerHTML = messageHTML;
+        document.getElementById('error-modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+        gameState.isModalOpen = true;
+    }
+
+    function closeModals() {
+        document.getElementById('criteria-modal').style.display = 'none';
+        document.getElementById('error-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+        gameState.isModalOpen = false;
+    }
+
+    function updateStatus(text) {
+        const bar = document.getElementById('status-bar');
+        if (!text) {
+            bar.classList.remove('visible');
+        } else {
+            bar.innerText = text;
+            bar.classList.add('visible');
+        }
+    }
+
+    // --- RENDER LOOP ---
+    let animationId;
+
+    function gameLoop() {
+        update();
+        draw();
+        
+        if (gameState.mode === 'game') {
+            checkTaskHover();
+        }
+        
+        animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function checkTaskHover() {
+        const taskEl = document.getElementById('task-display');
+        const rect = taskEl.getBoundingClientRect();
+        const parentRect = canvas.getBoundingClientRect();
+        const globalMouseX = mouse.x + parentRect.left;
+        const globalMouseY = mouse.y + parentRect.top;
+
+        if (globalMouseX >= rect.left && globalMouseX <= rect.right &&
+            globalMouseY >= rect.top && globalMouseY <= rect.bottom) {
+            taskEl.classList.add('transparent-task');
+        } else {
+            if (gameState.dragItem && gameState.dragItem.y < 150) {
+                 taskEl.classList.add('transparent-task');
+            } else {
+                 taskEl.classList.remove('transparent-task');
+            }
+        }
+    }
+
+    function update() {
+        if (gameState.mode === 'game' && !gameState.isModalOpen) {
+            updateGamePhysics();
+        } 
+    }
+
+    function updateGamePhysics() {
+        gameState.hoveredZone = null;
+
+        gameState.gameObjects.forEach(obj => {
+            if (obj.locked) return;
+
+            if (obj.held) {
+                const dx = mouse.x - obj.x;
+                const dy = mouse.y - obj.y;
+                obj.vx = dx * 0.2; 
+                obj.vy = dy * 0.2;
+                
+                const zone = gameState.gameTargets.find(t => 
+                    obj.x > t.x - t.w/2 && 
+                    obj.x < t.x + t.w/2 && 
+                    obj.y > t.y - t.h/2 && 
+                    obj.y < t.y + t.h/2
+                );
+
+                if (zone) {
+                    gameState.hoveredZone = zone; 
+                    updateStatus(`${obj.ruName} находится ${zone.ruLoc}`);
+                    
+                    if (zone.label === 'BEHIND') obj.visualState = 'behind';
+                    else if (zone.label === 'IN') obj.visualState = 'in';
+                    else obj.visualState = 'normal';
+                } else {
+                    obj.visualState = 'normal';
+                }
+
+                if (Math.random() > 0.7) {
+                    gameState.particles.push({
+                        x: obj.x, y: obj.y,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        life: 1.0,
+                        color: obj.color
+                    });
+                }
+            } else {
+                obj.vx *= 0.92;
+                obj.vy *= 0.92;
+                
+                if (obj.x < obj.radius) { obj.x = obj.radius; obj.vx *= -1; }
+                if (obj.x > canvas.width - obj.radius) { obj.x = canvas.width - obj.radius; obj.vx *= -1; }
+                if (obj.y < 80) { obj.y = 80; obj.vy *= -1; } 
+                if (obj.y > canvas.height - obj.radius) { obj.y = canvas.height - obj.radius; obj.vy *= -1; }
+            }
+
+            obj.x += obj.vx;
+            obj.y += obj.vy;
+        });
+
+        if (!gameState.dragItem) updateStatus("");
+
+        for (let i = gameState.particles.length - 1; i >= 0; i--) {
+            let p = gameState.particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.05;
+            if (p.life <= 0) gameState.particles.splice(i, 1);
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const w = canvas.width;
+        const h = canvas.height;
+        
+        // Background
+        ctx.fillStyle = '#fab1a0'; 
+        ctx.fillRect(0, 0, w, h * 0.55);
+        ctx.fillStyle = '#81ecec'; 
+        ctx.fillRect(0, h * 0.55, w, h * 0.45);
+        
+        // --- DRAW LAYERS ---
+        
+        // 1. BEHIND ITEMS (Game Only)
+        if (gameState.mode === 'game') {
+            gameState.gameObjects.forEach(obj => {
+                if (obj.visualState === 'behind') drawItem(obj);
+            });
+        }
+
+        // 2. FURNITURE
+        drawStaticFurniture(w, h);
+        
+        // 3. ZONES
+        // Only highlight active zone
+        if (gameState.mode === 'game' && gameState.hoveredZone) {
+            drawZoneHighlight(gameState.hoveredZone);
+        }
+
+        // 4. NORMAL ITEMS (Game Only)
+        if (gameState.mode === 'game') {
+            gameState.gameObjects.forEach(obj => {
+                if (obj.visualState !== 'behind') drawItem(obj);
+            });
+
+            gameState.particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5 * p.life, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        if (gameState.mode === 'game' && !gameState.isModalOpen) drawCursor();
+    }
+
+    function drawItem(obj) {
+        ctx.save();
+        
+        if (obj.visualState === 'in') {
+            ctx.globalAlpha = 0.5;
+        }
+
+        ctx.shadowBlur = obj.held ? 15 : 5;
+        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+        
+        ctx.beginPath();
+        ctx.arc(obj.x, obj.y, obj.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = obj.locked ? '#00b894' : obj.color; 
+        ctx.stroke();
+
+        ctx.font = `${obj.radius * 1.3}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(obj.icon, obj.x, obj.y + 4);
+
+        if (obj.locked) {
+            ctx.font = '20px Arial';
+            ctx.fillText('✔️', obj.x + 20, obj.y - 20);
+        }
+
+        ctx.restore();
+    }
+
+    function drawStaticFurniture(w, h) {
+        furnitureDef.forEach(f => {
+            const x = f.xPct * w;
+            const y = f.yPct * h;
+            const width = f.wPct * w;
+            const height = f.hPct * h;
+            drawFurniturePiece(f.id, x, y, width, h); 
+        });
+    }
+
+    function drawFurniturePiece(id, x, y, width, screenH) {
+        const w = width;
+        
+        if (id === 'table') {
+            ctx.fillStyle = '#6D214F'; 
+            ctx.fillRect(x - w/2, y, w, 15); 
+            ctx.fillRect(x - w/2 + 10, y + 15, 15, 120); 
+            ctx.fillRect(x + w/2 - 25, y + 15, 15, 120);
+        }
+        else if (id === 'fridge') {
+            const h = screenH * 0.35; 
+            ctx.fillStyle = '#dfe6e9'; ctx.fillRect(x - w/2, y, w, h);
+            ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(x + w/2 - 5, y, 5, h);
+            ctx.strokeStyle = '#b2bec3'; ctx.lineWidth = 2; ctx.strokeRect(x - w/2, y, w, h);
+            ctx.beginPath(); ctx.moveTo(x - w/2, y + h*0.3); ctx.lineTo(x + w/2, y + h*0.3); ctx.stroke();
+            ctx.fillStyle = '#b2bec3';
+            ctx.fillRect(x - w/2 + 8, y + h*0.1, 4, h*0.15); 
+            ctx.fillRect(x - w/2 + 8, y + h*0.35, 4, h*0.2); 
+            ctx.fillStyle = '#fab1a0'; ctx.fillRect(x, y + h*0.1, 15, 15);
+            ctx.fillStyle = '#d63031'; ctx.beginPath(); ctx.arc(x + 7, y + h*0.1 + 2, 3, 0, Math.PI*2); ctx.fill();
+        }
+        else if (id === 'wardrobe') {
+            const h = screenH * 0.45;
+            ctx.fillStyle = '#e17055'; ctx.fillRect(x - w/2, y, w, h);
+            ctx.strokeStyle = '#6D214F'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + h); ctx.stroke();
+            ctx.fillStyle = '#fdcb6e'; ctx.beginPath(); ctx.arc(x - 5, y + h/2, 4, 0, Math.PI*2); ctx.fill();
+        }
+        else if (id === 'box') {
+            const h = screenH * 0.12;
+            const drawY = y - h/2;
+            ctx.fillStyle = '#d35400'; ctx.fillRect(x - w/2, drawY, w, h);
+            ctx.fillStyle = '#e67e22'; ctx.fillRect(x - w/2, drawY + 20, w, h - 20); 
+            ctx.fillStyle = '#f1c40f'; ctx.font = '40px Arial'; ctx.textAlign = 'center'; ctx.textBaseline='middle';
+            ctx.fillText('★', x, drawY + h/2 + 10);
+        }
+        else if (id === 'tv') {
+             const h = screenH * 0.15;
+             const drawY = y - h/2;
+             ctx.fillStyle = '#2d3436'; ctx.beginPath(); ctx.roundRect(x - w/2, drawY, w, h, 5); ctx.fill();
+             ctx.fillStyle = '#000'; ctx.beginPath(); ctx.roundRect(x - w/2 + 4, drawY + 4, w - 8, h - 8, 2); ctx.fill();
+             ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.moveTo(x - w/2 + 4, drawY + 4); ctx.lineTo(x, drawY + 4); ctx.lineTo(x - w/2 + 4, drawY + 10 + h/2); ctx.fill();
+             ctx.fillStyle = '#636e72'; ctx.fillRect(x - 5, drawY + h, 10, 15); ctx.fillRect(x - 25, drawY + h + 15, 50, 5);
+             ctx.fillStyle = '#e17055'; ctx.beginPath(); ctx.arc(x + w/2 - 10, drawY + h - 10, 2, 0, Math.PI*2); ctx.fill();
+        }
+        else if (id === 'shelf') {
+            ctx.fillStyle = '#fdcb6e';
+            ctx.fillRect(x - w/2, y, w, 10);
+        }
+    }
+
+    function drawZoneHighlight(target) {
+        ctx.save();
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#00cec9'; 
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        if(target.label === 'BEHIND') {
+             ctx.globalAlpha = 0.3;
+             ctx.fillStyle = 'rgba(200, 200, 200, 0.2)';
+        }
+        const radius = 10;
+        const x = target.x - target.w/2;
+        const y = target.y - target.h/2;
+        const w = target.w;
+        const h = target.h;
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, radius);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawCursor() {
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 15 + Math.sin(Date.now()/100)*5, 0, Math.PI * 2);
+        ctx.strokeStyle = varColor('--secondary');
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function varColor(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    // --- INPUT HANDLERS ---
+    canvas.addEventListener('mousedown', (e) => handleInputStart(e.offsetX, e.offsetY));
+    canvas.addEventListener('mousemove', (e) => handleInputMove(e.offsetX, e.offsetY));
+    canvas.addEventListener('mouseup', handleInputEnd);
+    
+    // Touch Handlers
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        handleInputStart(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+    }, {passive: false});
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        handleInputMove(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+    }, {passive: false});
+    canvas.addEventListener('touchend', handleInputEnd);
+
+    function handleInputStart(x, y) {
+        if (gameState.isModalOpen) return;
+        mouse.x = x; 
+        mouse.y = y;
+        mouse.down = true;
+
+        if (gameState.mode === 'game') {
+            gameState.gameObjects.forEach(obj => {
+                if (obj.locked) return;
+                const dist = Math.hypot(obj.x - x, obj.y - y);
+                if (dist < obj.radius + 15) {
+                    gameState.dragItem = obj;
+                    obj.held = true;
+                }
+            });
+        }
+    }
+
+    function handleInputMove(x, y) {
+        if (gameState.isModalOpen) return;
+        mouse.x = x;
+        mouse.y = y;
+    }
+
+    function handleInputEnd() {
+        mouse.down = false;
+        if (gameState.mode === 'game' && gameState.dragItem && !gameState.isModalOpen) {
+            checkDrop(gameState.dragItem);
+            gameState.dragItem.held = false;
+            gameState.dragItem = null;
+        }
+    }
+
+    function checkDrop(item) {
+        const targetZone = gameState.gameTargets.find(t => 
+            item.x > t.x - t.w/2 && 
+            item.x < t.x + t.w/2 && 
+            item.y > t.y - t.h/2 && 
+            item.y < t.y + t.h/2
+        );
+
+        if (targetZone) {
+            const currentTask = gameState.currentRoundTasks[gameState.taskIndex];
+            
+            const isCorrectItem = item.id === currentTask.itemId;
+            const isCorrectZone = targetZone.id === currentTask.targetId;
+
+            if (isCorrectItem && isCorrectZone) {
+                playSound('correct');
+                
+                // Начисляем балл, только если не было ошибки
+                if (!currentTask.failed) {
+                    gameState.score++;
+                }
+                
+                createExplosion(item.x, item.y, '#00b894');
+                
+                item.x = targetZone.x;
+                item.y = targetZone.y;
+                item.locked = true;
+                item.visualState = (targetZone.label === 'BEHIND') ? 'behind' : (targetZone.label === 'IN' ? 'in' : 'normal');
+
+                gameState.taskIndex++;
+                loadNextTask();
+            } else {
+                // Если игрок положил предмет в зону, но он неверный, балл сгорает
+                currentTask.failed = true; 
+                
+                playSound('wrong');
+                createExplosion(item.x, item.y, '#d63031');
+                
+                // Отскакивание предмета
+                item.vx = (Math.random() - 0.5) * 20;
+                item.vy = (Math.random() - 0.5) * 20;
+
+                // Находим правильную зону для объяснения ошибки
+                const correctTargetDef = allPossibleTargets.find(t => t.id === currentTask.targetId);
+                
+                showErrorModal(
+                    `Ты попытался положить предмет <b>${targetZone.ruLoc}</b>.<br><br>` +
+                    `Задание было: положить <span class="highlight"><b>${correctTargetDef.ruLoc}</b></span> (${correctTargetDef.label}).<br><br>` +
+                    `<i style="color: #636e72;">Балл за этот предмет не начислен, но поставь его правильно, чтобы продолжить!</i>`
+                );
+            }
+        }
+    }
+
+    function createExplosion(x, y, color) {
+        for(let i=0; i<20; i++) {
+            gameState.particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                life: 1.5,
+                color: color
+            });
+        }
+    }
+
+    document.getElementById('menu-volume').addEventListener('input', (e) => updateVolume(e.target.value));
+    document.getElementById('game-volume').addEventListener('input', (e) => updateVolume(e.target.value));
+
+</script>
+</body>
+</html>
