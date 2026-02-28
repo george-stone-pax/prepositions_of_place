@@ -383,35 +383,6 @@
 </head>
 <body>
 
-<script>
-    // --- PROTECTION SYSTEM WITH LOCALHOST EXCEPTION ---
-    (function() {
-        const allowedDomains = ['stepik.org', 'welcome.stepik.org', 'localhost', '127.0.0.1'];
-        const referrer = document.referrer;
-        const hostname = window.location.hostname;
-        const protocol = window.location.protocol;
-
-        // Разрешаем доступ, если:
-        // 1. Реферер содержит разрешенный домен
-        // 2. Протокол - file: (локальный запуск)
-        // 3. Хостнейм в списке разрешенных или пустой (некоторые песочницы/редакторы)
-        const isInsideStepik = allowedDomains.some(domain => referrer.includes(domain));
-        const isLocal = protocol === 'file:' || allowedDomains.includes(hostname) || hostname === '';
-
-        if (!isInsideStepik && !isLocal) {
-            document.body.innerHTML = `
-                <div style="background:#000; color:#fff; height:100vh; display:flex;
-                            flex-direction:column; align-items:center; justify-content:center;
-                            font-family:sans-serif; text-align:center; padding:20px;">
-                    <h1>⛔️ Доступ ограничен</h1>
-                    <p>Эта игра — часть платного курса. <br>
-                    Пожалуйста, вернитесь к обучению на Stepik.</p>
-                    <a href="https://stepik.org" style="color:#4ade80; font-size: 1.2rem; margin-top: 20px;">Перейти к курсу</a>
-                </div>`;
-            window.stop();
-        }
-    })();
-
     // --- PREVENT SCROLL ON ARROWS ---
     window.addEventListener('keydown', function(e) {
         if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].indexOf(e.code) > -1) {
@@ -1304,4 +1275,5 @@
 
 </script>
 </body>
+
 </html>
