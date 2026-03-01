@@ -383,6 +383,7 @@
 </head>
 <body>
 
+    <script>
     // --- PREVENT SCROLL ON ARROWS ---
     window.addEventListener('keydown', function(e) {
         if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].indexOf(e.code) > -1) {
@@ -406,13 +407,12 @@
             cancelFullScreen.call(doc);
         }
     }
-</script>
+    </script>
 
 <div id="game-container">
 
     <button class="fullscreen-btn" onclick="toggleFullScreen()" title="Развернуть на весь экран">⛶</button>
 
-    <!-- MENU SCREEN -->
     <div id="menu-screen" class="screen">
         <h1>Magic Room 👻</h1>
         <h2>Prepositions of Place</h2>
@@ -431,7 +431,6 @@
         </div>
     </div>
 
-    <!-- HOW TO PLAY SCREEN -->
     <div id="how-to-play-screen" class="screen hidden" style="background: rgba(255,255,255,0.98);">
         <h2 style="font-size: 2.5rem; color: var(--primary);">Как играть? 🎮</h2>
         <div style="text-align: left; max-width: 600px; font-size: 1.3rem; margin-bottom: 30px;">
@@ -443,7 +442,6 @@
         <button class="btn" onclick="startActualGame()">Понятно, поехали!</button>
     </div>
 
-    <!-- THEORY SCREEN -->
     <div id="theory-screen" class="screen hidden">
         <h2>Изучи правила (Study the rules)</h2>
         <div id="theory-content">
@@ -491,10 +489,8 @@
         <button class="btn" style="margin-top: 20px;" onclick="finishTheory()">Я все выучил! (I'm ready)</button>
     </div>
 
-    <!-- GAME SCREEN -->
     <canvas id="game-canvas"></canvas>
     
-    <!-- Gameplay UI -->
     <div id="game-ui" class="hidden">
         <div id="top-bar">
             <div style="font-weight: bold; font-size: 1.2rem; color: var(--primary);">Score: <span id="score-display">0</span></div>
@@ -512,17 +508,15 @@
         <div id="level-notification">Level 2</div>
     </div>
 
-    <!-- RESULT SCREEN -->
     <div id="result-screen" class="screen hidden">
         <h1>Great Job!</h1>
         <p>Твой результат:</p>
         <div id="final-grade-badge" class="grade-badge">5</div>
         <h2 id="final-score-text">Score: 100</h2>
         
-        <!-- Секретное слово -->
         <div id="secret-word-container" class="hidden" style="margin: 20px 0; min-height: 80px;">
             <button id="btn-reveal-secret" class="btn" style="background: var(--accent);" onclick="revealSecretWord()">Показать СЕКРЕТНОЕ СЛОВО 🎁</button>
-            <div id="secret-word-display" class="hidden" style="font-size: 2.5rem; color: var(--accent); font-weight: bold; animation: pulse 1.5s infinite;">Big - Большой</div>
+            <div id="secret-word-display" class="hidden" style="font-size: 2.5rem; color: var(--accent); font-weight: bold; animation: pulse 1.5s infinite;">Spoon - Ложка</div>
         </div>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
@@ -531,7 +525,6 @@
         </div>
     </div>
 
-    <!-- OVERLAYS AND MODALS -->
     <div id="overlay" class="overlay" onclick="closeModals()"></div>
     
     <div id="criteria-modal" class="modal-box">
@@ -1275,5 +1268,4 @@
 
 </script>
 </body>
-
 </html>
